@@ -17,9 +17,10 @@ RUN set -eux; \
     mkdir -p "$GRAFANA_HOME" "$GF_PATHS_DATA" "$GF_PATHS_LOGS" "$GF_PATHS_PLUGINS" "$GF_PATHS_PROVISIONING"; \
     chown -R grafana:grafana "$GRAFANA_HOME" "$GF_PATHS_DATA" "$GF_PATHS_LOGS" "$GF_PATHS_PLUGINS" "$GF_PATHS_PROVISIONING"
 
-# Copy in the downloaded tarball at build time (from local tmp/)
+# Copy in the downloaded tarball at build time (from local tmp/).
+# Use COPY (not ADD) to avoid auto-extraction of tar archives.
 ARG GRAFANA_TARBALL
-ADD tmp/${GRAFANA_TARBALL} /tmp/
+COPY tmp/${GRAFANA_TARBALL} /tmp/
 
 RUN set -eux; \
     cd /tmp; \
