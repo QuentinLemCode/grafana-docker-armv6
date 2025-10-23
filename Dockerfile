@@ -12,7 +12,9 @@ ENV GRAFANA_HOME=/opt/grafana \
     GF_SERVER_HTTP_PORT=3000
 
 RUN set -eux; \
-    apk add --no-cache ca-certificates tzdata tar fontconfig ttf-dejavu libstdc++ libgcc wget; \
+    apk add --no-cache ca-certificates tzdata tar fontconfig ttf-dejavu libstdc++ libgcc wget libc6-compat gcompat; \
+    # Provide GLIBC-style loader path if the binary expects it
+    ln -sf /lib/ld-musl-armhf.so.1 /lib/ld-linux-armhf.so.3 || true; \
     addgroup -S grafana && adduser -S -G grafana grafana; \
     mkdir -p "$GRAFANA_HOME" "$GF_PATHS_DATA" "$GF_PATHS_LOGS" "$GF_PATHS_PLUGINS" "$GF_PATHS_PROVISIONING"; \
     chown -R grafana:grafana "$GRAFANA_HOME" "$GF_PATHS_DATA" "$GF_PATHS_LOGS" "$GF_PATHS_PLUGINS" "$GF_PATHS_PROVISIONING"
@@ -27,11 +29,7 @@ RUN set -eux; \
     tar -zxvf ${GRAFANA_TARBALL}; \
     dir=$(find . -maxdepth 1 -type d -name 'grafana*' | head -n1 | sed 's#^./##'); \
     mv "$dir" "$GRAFANA_HOME"; \
-    # Strip binaries to reduce size (best-effort)
-    apk add --no-cache --virtual .binutils binutils || true; \
-    (strip "$GRAFANA_HOME"/bin/grafana-server || true); \
-    (strip "$GRAFANA_HOME"/bin/grafana-cli || true); \
-    apk del .binutils || true; \
+    chmod +x "$GRAFANA_HOME"/bin/grafana-server "$GRAFANA_HOME"/bin/grafana-cli || true; \
     # Remove docs to save space
     rm -f "$GRAFANA_HOME"/LICENSE "$GRAFANA_HOME"/NOTICE "$GRAFANA_HOME"/README.md || true; \
     rm -f "/tmp/${GRAFANA_TARBALL}"
