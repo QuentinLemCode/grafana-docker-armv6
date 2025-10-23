@@ -97,6 +97,15 @@ jobs:
             -t "$repo:latest" \
             --push .
 
+      - name: Update Docker Hub description
+        uses: peter-evans/dockerhub-description@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: ${{ secrets.DOCKERHUB_USERNAME }}/grafana-armv6
+          short-description: ${{ github.event.repository.description }}
+          readme-filepath: ./DOCKERHUB.md
+
       - name: Outcome
         run: |
           if [ "${{ steps.tagcheck.outputs.exists }}" = "true" ]; then
