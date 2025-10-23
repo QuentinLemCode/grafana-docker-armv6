@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.7
 # Minimal linux/arm/v6 image running Grafana from the ARMv6 standalone tarball
 
-FROM arm32v6/alpine:3.12
+FROM arm32v6/alpine:latest
 
 ENV GRAFANA_HOME=/opt/grafana \
     GF_PATHS_DATA=/var/lib/grafana \
