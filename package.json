@@ -3,14 +3,19 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "start": "node index.ts"
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "check-latest": "node dist/index.js --print-json",
+    "download": "node dist/index.js --download",
+    "test": "npm run build && npx playwright install --with-deps chromium && node --test dist/test/*.js"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "AGPL-3.0-only",
   "type": "module",
   "dependencies": {
     "@types/node": "^24.9.1",
+    "playwright": "^1.48.2",
     "typescript": "^5.9.3"
   }
 }
