@@ -108,7 +108,7 @@ Then build using the downloaded tarball from `tmp/`:
 ```bash
 TAR=$(basename $(ls tmp/*.tar.gz))
 docker buildx build \
-  --platform linux/arm/v6 \
+  --platform linux/arm \
   --build-arg GRAFANA_TARBALL=$TAR \
   -t <your-dockerhub-user>/grafana-armv6:<version> \
   --load .

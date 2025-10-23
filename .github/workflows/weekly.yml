@@ -97,7 +97,7 @@ jobs:
         run: |
           repo="$DOCKERHUB_USERNAME/grafana-armv6"
           docker buildx build \
-            --platform linux/arm/v6 \
+            --platform linux/arm \
             --build-arg GRAFANA_TARBALL=${{ steps.tarball.outputs.name }} \
             -t "$repo:${{ steps.latest.outputs.version }}" \
             -t "$repo:latest" \
