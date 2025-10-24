@@ -15,6 +15,7 @@ RUN set -eux; \
     apk add --no-cache ca-certificates tzdata tar fontconfig ttf-dejavu libstdc++ libgcc wget libc6-compat gcompat; \
     # Provide GLIBC-style loader path if the binary expects it
     ln -sf /lib/ld-musl-armhf.so.1 /lib/ld-linux-armhf.so.3 || true; \
+    ln -sf /lib/ld-musl-armhf.so.1 /lib/ld-linux.so.3 || true; \
     addgroup -S grafana && adduser -S -G grafana grafana; \
     mkdir -p "$GRAFANA_HOME" "$GF_PATHS_DATA" "$GF_PATHS_LOGS" "$GF_PATHS_PLUGINS" "$GF_PATHS_PROVISIONING"; \
     chown -R grafana:grafana "$GRAFANA_HOME" "$GF_PATHS_DATA" "$GF_PATHS_LOGS" "$GF_PATHS_PLUGINS" "$GF_PATHS_PROVISIONING"
@@ -28,8 +29,21 @@ RUN set -eux; \
     cd /tmp; \
     tar -zxvf ${GRAFANA_TARBALL}; \
     dir=$(find . -maxdepth 1 -type d -name 'grafana*' | head -n1 | sed 's#^./##'); \
-    mv "$dir" "$GRAFANA_HOME"; \
+    # Move extracted contents into $GRAFANA_HOME root (not nested folder)
+    mkdir -p "$GRAFANA_HOME"; \
+    mv "$dir"/* "$GRAFANA_HOME"/; \
+    # move hidden files if any
+    sh -c 'mv "$0"/.[!.]* "$1"/ 2>/dev/null || true' "$dir" "$GRAFANA_HOME"; \
+    rmdir "$dir" || true; \
     chmod +x "$GRAFANA_HOME"/bin/grafana-server "$GRAFANA_HOME"/bin/grafana-cli || true; \
+    # Try to detect and satisfy ELF interpreter path
+    apk add --no-cache --virtual .elfutils binutils || true; \
+    interp=$(readelf -l "$GRAFANA_HOME"/bin/grafana-server 2>/dev/null | awk '/interpreter/ {print $NF}' | tr -d ']'); \
+    if [ -n "$interp" ] && [ ! -e "$interp" ]; then \
+      mkdir -p "$(dirname "$interp")"; \
+      ln -sf /lib/ld-musl-armhf.so.1 "$interp" || true; \
+    fi; \
+    apk del .elfutils || true; \
     # Remove docs to save space
     rm -f "$GRAFANA_HOME"/LICENSE "$GRAFANA_HOME"/NOTICE "$GRAFANA_HOME"/README.md || true; \
     rm -f "/tmp/${GRAFANA_TARBALL}"
@@ -40,4 +54,4 @@ USER grafana
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 CMD wget -qO- http://127.0.0.1:3000/ || exit 1
 
 ENTRYPOINT ["/opt/grafana/bin/grafana-server"]
-CMD ["--homepath=/opt/grafana", "--packaging=docker", "--config=/etc/grafana/grafana.ini"]
+CMD ["--homepath=/opt/grafana", "--packaging=docker"]
