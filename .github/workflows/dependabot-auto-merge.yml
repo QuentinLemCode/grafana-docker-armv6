@@ -16,7 +16,7 @@ jobs:
     steps:
       - name: Get PR number
         id: pr
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const prs = context.payload.workflow_run.pull_requests;
@@ -28,7 +28,7 @@ jobs:
 
       - name: Ensure PR is from Dependabot
         id: dep
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const prNumber = Number(core.getInput('number')) || Number(process.env.PR_NUMBER || '${{ steps.pr.outputs.number }}');
