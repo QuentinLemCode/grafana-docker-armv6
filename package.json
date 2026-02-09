@@ -15,7 +15,7 @@
   "type": "module",
   "dependencies": {
     "@types/node": "^25.2.2",
-    "playwright": "^1.58.1",
+    "playwright": "^1.58.2",
     "typescript": "^5.9.3"
   }
 }
