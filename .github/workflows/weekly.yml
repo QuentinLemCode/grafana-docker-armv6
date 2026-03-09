@@ -70,7 +70,7 @@ jobs:
 
       - name: Setup Docker Buildx
         if: steps.tagcheck.outputs.exists == 'false' || inputs.force == true
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Docker login
         if: steps.tagcheck.outputs.exists == 'false' || inputs.force == true
